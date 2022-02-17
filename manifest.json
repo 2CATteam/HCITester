@@ -1,0 +1,22 @@
+{
+  "name": "HCI Testing Extension",
+  "description": "This extension adds things to force you off a website",
+  "version": "0.1",
+  "manifest_version": 3,
+  "content_scripts": [
+  {
+	  "matches": ["<all_urls>"],
+	  "js": ["injected.js"],
+	  "run_at": "document_start"
+  }
+  ],
+  "host_permissions": ["<all_urls>"],
+  "permissions": [
+		"storage",
+		"activeTab",
+		"tabs"
+  ],
+  "action": {
+	  "default_popup": "config.html"
+  }
+}
