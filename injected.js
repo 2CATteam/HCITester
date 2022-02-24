@@ -1,5 +1,5 @@
-const STIMULI_START_TIME = 5000
-const MAX_TIME = 10000 //the max time after the stimuli starts
+const STIMULI_START_TIME = 1000 * 60 * 5
+const MAX_TIME = 1000 * 60 * 5 //the max time after the stimuli starts
 
 let timeOnPage = 0
 let lastChecked = new Date()
@@ -74,7 +74,7 @@ function blackBoxStimuli(){
 		blackBoxElement.style = `z-index: 16777271;
 			top:0px;
 			left:0px;
-			position: absolute;
+			position: fixed;
 			width:100vw;
 			height:100vh;
 			background: rgba(0,0,0,${blackBoxPercent/100});
