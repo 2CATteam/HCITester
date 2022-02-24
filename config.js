@@ -23,12 +23,15 @@ function clearTime() {
 	})
 }
 
-chrome.storage.local.get(["test", "test2"], (result) => {
+chrome.storage.local.get(["test", "test2", "blackBoxStimuli"], (result) => {
 	if (result.test) {
 		document.getElementById("test").checked = true
 	}
 	if (result.test2) {
 		document.getElementById("test2").checked = true
+	}
+	if(result.blackBoxStimuli){
+		document.getElementById("blackBoxStimuli").checked = true
 	}
 })
 
@@ -59,6 +62,20 @@ checkbox.addEventListener('change', (event) => {
 		console.log("Change successful")
 	 })
   }
+})
+
+checkBox = document.getElementById('blackBoxStimuli')
+
+checkBox.addEventListener('change', (event) => {
+	if(event.currentTarget.checked) {
+		chrome.storage.local.set({blackBoxStimuli: true}, ()=>{
+			console.log("Change successful")
+		})
+	} else {
+		chrome.storage.local.set({blackBoxStimuli: false}, ()=>{
+			console.log("Change successful")
+		})
+	}
 })
 
 document.getElementById("clearTime").onclick = clearTime
