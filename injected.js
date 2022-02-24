@@ -71,7 +71,14 @@ function blackBoxStimuli(){
 
 	if(timeOnPage > STIMULI_START_TIME){
 		const blackBoxPercent = Math.min(((timeOnPage-STIMULI_START_TIME) / MAX_TIME) * 100, 100)
-		blackBoxElement.style = `z-index: 16777271;top:0px;left:0px;position: absolute;width:${blackBoxPercent}%;height:${blackBoxPercent}%;background: rgba(0,0,0,${blackBoxPercent/100});`
+		blackBoxElement.style = `z-index: 16777271;
+			top:0px;
+			left:0px;
+			position: absolute;
+			width:100vw;
+			height:100vh;
+			background: rgba(0,0,0,${blackBoxPercent/100});
+			pointer-events: none`
 	} else {
 		resetBlackBoxStimuli()
 	}
