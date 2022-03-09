@@ -3,6 +3,11 @@ const MAX_TIME = 1000 * 60 * 5 //the max time after the stimuli starts
 
 let timeOnPage = 0
 let lastChecked = new Date()
+let port
+let portOpen = false
+let encoder = new TextEncoderStream()
+let outputDone
+let outputStream
 
 function onLoad() {
 	chrome.storage.local.get([window.location.hostname], (result) => {
@@ -41,12 +46,6 @@ onLoad()
 function runStimuli() {
 	chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli"], (result) => {
 		console.log(result)
-		if (result.test) {
-			console.log("Test was defined")
-		}
-		if (result.test2) {
-			test2()
-		}
 		if(result.blackBoxStimuli){
 			blackBoxStimuli()
 		} else {
@@ -59,10 +58,6 @@ function runStimuli() {
 			resetCloseButtonStimuli()
 		}
 	})
-}
-
-function test2() {
-	console.log("Test2 was defined")
 }
 
 //Black box stimuli stuff -------------------------------------------------------------------------------------
