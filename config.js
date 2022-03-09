@@ -24,12 +24,6 @@ function clearTime() {
 }
 
 chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli"], (result) => {
-	if (result.test) {
-		document.getElementById("test").checked = true
-	}
-	if (result.test2) {
-		document.getElementById("test2").checked = true
-	}
 	if(result.blackBoxStimuli){
 		document.getElementById("blackBoxStimuli").checked = true
 	}
@@ -38,36 +32,7 @@ chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimul
 	}
 })
 
-//https://stackoverflow.com/questions/6358673/javascript-checkbox-onchange
-let checkbox = document.getElementById('test')
-
-checkbox.addEventListener('change', (event) => {
-  if (event.currentTarget.checked) {
-	 chrome.storage.local.set({test: true}, () => {
-		console.log("Change successful")
-	 })
-  } else {
-	 chrome.storage.local.set({test: false}, () => {
-		console.log("Change successful")
-	 })
-  }
-})
-
-checkbox = document.getElementById('test2')
-
-checkbox.addEventListener('change', (event) => {
-  if (event.currentTarget.checked) {
-	 chrome.storage.local.set({test2: true}, () => {
-		console.log("Change successful")
-	 })
-  } else {
-	 chrome.storage.local.set({test2: false}, () => {
-		console.log("Change successful")
-	 })
-  }
-})
-
-checkBox = document.getElementById('blackBoxStimuli')
+let checkBox = document.getElementById('blackBoxStimuli')
 
 checkBox.addEventListener('change', (event) => {
 	if(event.currentTarget.checked) {

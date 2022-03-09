@@ -29,23 +29,23 @@ function onLoad() {
 }
 
 function updateTime() {
-	timeOnPage += (new Date().valueOf()) - lastChecked.valueOf()
-	lastChecked = new Date()
 	let obj = {}
 	obj[window.location.hostname] = timeOnPage
 	chrome.storage.local.set(obj, function() {
 		console.log(timeOnPage)
 	})
-	runStimuli()
 }
 
 setInterval(updateTime, 1000)
+setInterval(runStimuli, 30)
 
 onLoad()
 
 function runStimuli() {
-	chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli"], (result) => {
-		console.log(result)
+	timeOnPage += (new Date().valueOf()) - lastChecked.valueOf()
+	console.log(timeOnPage)
+	lastChecked = new Date()
+	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli"], (result) => {
 		if(result.blackBoxStimuli){
 			blackBoxStimuli()
 		} else {
@@ -79,7 +79,7 @@ function blackBoxStimuli(){
 			width:100vw;
 			height:100vh;
 			background: rgba(0,0,0,${blackBoxPercent/100});
-			pointer-events: none`
+			pointer-events: none;`
 	} else {
 		resetBlackBoxStimuli()
 	}
@@ -112,7 +112,7 @@ function closeButtonStimuli(){
 			document.body.appendChild(buttonElement)
 			document.onmousemove = mouseMoved
 			buttonElement.innerHTML = "Close"
-			buttonElement.onclick = closeTab()
+			buttonElement.onclick = closeTab
 			
 			maxDistance = document.documentElement.clientWidth
 		}
@@ -144,9 +144,8 @@ function closeButtonStimuli(){
 			z-index: 16777271;
 			top:${newY - buttonHeight/2}px;
 			left:${newX - buttonWidth/2}px;
-			position: absolute;
-			width:${buttonWidth}px;
-			height:${buttonHeight}px;
+			position: fixed;
+			padding: 4px;
 			`
 			buttonX = newX
 			buttonY = newY
@@ -156,8 +155,8 @@ function closeButtonStimuli(){
 
 // Updates the stored position of the mouse
 function mouseMoved(event){
-	mouseX = event.pageX
-	mouseY = event.pageY
+	mouseX = event.clientX
+	mouseY = event.clientY
 }
 
 // Closes the current tab when the button is pressed
