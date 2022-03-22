@@ -3,11 +3,8 @@ const MAX_TIME = 1000 * 60 * 5 //the max time after the stimuli starts
 
 let timeOnPage = 0
 let lastChecked = new Date()
-let port
-let portOpen = false
-let encoder = new TextEncoderStream()
-let outputDone
-let outputStream
+var lastScrollPosition = window.scrollY
+var scrollMultiplier = 1
 
 function onLoad() {
 	chrome.storage.local.get([window.location.hostname], (result) => {
@@ -26,6 +23,7 @@ function onLoad() {
 			}
 		}
 	})
+	document.addEventListener('scroll', interceptScroll)
 }
 
 function updateTime() {
@@ -43,9 +41,8 @@ onLoad()
 
 function runStimuli() {
 	timeOnPage += (new Date().valueOf()) - lastChecked.valueOf()
-	console.log(timeOnPage)
 	lastChecked = new Date()
-	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli"], (result) => {
+	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli", "scrollStimuli"], (result) => {
 		if(result.blackBoxStimuli){
 			blackBoxStimuli()
 		} else {
@@ -56,6 +53,11 @@ function runStimuli() {
 		}
 		else{
 			resetCloseButtonStimuli()
+		}
+		if (result.scrollStimuli) {
+			setScrollMultiplier()
+		} else {
+			resetScrollMultiplier()
 		}
 	})
 }
@@ -166,6 +168,29 @@ function closeTab(){
 
 // Removes the button
 function resetCloseButtonStimuli(){
-	document.body.removeChild(buttonElement)
+	if (document.body.contains(buttonElement)) {
+		document.body.removeChild(buttonElement)
+	}
 }
 // End Button Close stuff -----------------------------------------
+
+function setScrollMultiplier() {
+	if (timeOnPage < STIMULI_START_TIME) {
+		resetScrollMultiplier()
+	} else {
+		scrollMultiplier = Math.max(0, 1 - ((timeOnPage - STIMULI_START_TIME) / MAX_TIME))
+	}
+}
+
+function interceptScroll(event) {
+	if (window.scrollY == Math.round(lastScrollPosition)) {
+		return
+	}
+	lastScrollPosition = lastScrollPosition + (window.scrollY - lastScrollPosition) * scrollMultiplier
+	scrollTo(window.scrollX, Math.round(lastScrollPosition))
+}
+
+function resetScrollMultiplier(event) {
+	lastScrollPosition = window.scrollY
+	scrollMultiplier = 1
+}

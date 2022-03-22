@@ -23,12 +23,15 @@ function clearTime() {
 	})
 }
 
-chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli"], (result) => {
+chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli", "scrollStimuli"], (result) => {
 	if(result.blackBoxStimuli){
 		document.getElementById("blackBoxStimuli").checked = true
 	}
 	if(result.closeButtonStimuli){
 		document.getElementById("closeButtonStimuli").checked = true
+	}
+	if (result.scrollStimuli) {
+		document.getElementById("scrollStimuli").checked = true
 	}
 })
 
@@ -55,6 +58,20 @@ checkBox.addEventListener('change', (event) => {
 		})
 	} else {
 		chrome.storage.local.set({closeButtonStimuli: false}, ()=>{
+			console.log("Change successful")
+		})
+	}
+})
+
+checkBox = document.getElementById('scrollStimuli')
+
+checkBox.addEventListener('change', (event) => {
+	if(event.currentTarget.checked) {
+		chrome.storage.local.set({scrollStimuli: true}, ()=>{
+			console.log("Change successful")
+		})
+	} else {
+		chrome.storage.local.set({scrollStimuli: false}, ()=>{
 			console.log("Change successful")
 		})
 	}
