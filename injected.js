@@ -5,6 +5,7 @@ let timeOnPage = 0
 let lastChecked = new Date()
 var lastScrollPosition = window.scrollY
 var scrollMultiplier = 1
+let doBlur = false
 
 function onLoad() {
 	chrome.storage.local.get([window.location.hostname], (result) => {
@@ -26,6 +27,23 @@ function onLoad() {
 	document.addEventListener('scroll', interceptScroll)
 }
 
+function onLoadRepeat() {
+	if (!document?.body || !(document.body instanceof Node)) {
+		setTimeout(onLoadRepeat, 1)
+		return
+	}
+	
+	let addedCSS = document.createElement("style")
+	
+	addedCSS.innerHTML = `
+		.hciAffectedElement {
+			color: transparent !important;
+		}
+	`
+	
+	document.head.appendChild(addedCSS)
+}
+
 function updateTime() {
 	let obj = {}
 	obj[window.location.hostname] = timeOnPage
@@ -35,14 +53,15 @@ function updateTime() {
 }
 
 setInterval(updateTime, 1000)
-setInterval(runStimuli, 30)
 
 onLoad()
+
+onLoadRepeat()
 
 function runStimuli() {
 	timeOnPage += (new Date().valueOf()) - lastChecked.valueOf()
 	lastChecked = new Date()
-	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli", "scrollStimuli"], (result) => {
+	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli", "scrollStimuli", "blurStimuli"], (result) => {
 		if(result.blackBoxStimuli){
 			blackBoxStimuli()
 		} else {
@@ -59,8 +78,15 @@ function runStimuli() {
 		} else {
 			resetScrollMultiplier()
 		}
+		doBlur = result.blurStimuli
 	})
+	requestAnimationFrame(runStimuli)
 }
+requestAnimationFrame(runStimuli)
+function runBlur() {
+	blurText()
+}
+setInterval(runBlur, 1000)
 
 //Black box stimuli stuff -------------------------------------------------------------------------------------
 let blackBoxElement = document.createElement('div')
@@ -193,4 +219,27 @@ function interceptScroll(event) {
 function resetScrollMultiplier(event) {
 	lastScrollPosition = window.scrollY
 	scrollMultiplier = 1
+}
+
+function blurText() {
+	let nodeList = document.querySelectorAll("a, h1, h2, h3, h4, h5, h6, p, span, strong, em, i, b, div")
+	nodeList.forEach(addTransparency)
+}
+
+function addTransparency(node) {
+	if (!node) return
+	if (!(node instanceof HTMLElement)) return
+	if (node?.classList?.contains("hciAffectedElement")) {
+		//${((timeOnPage - STIMULI_START_TIME) / MAX_TIME) * 10}
+		let text = node.style.getPropertyValue("text-shadow")
+		let color = text.match(/rgba?\([^)]+\)/)[0]
+		node.style.setProperty("text-shadow", `0 0 ${Math.min(Math.max((timeOnPage - STIMULI_START_TIME) / MAX_TIME, 0) * 10, 10) * (doBlur ? 1 : 0)}px ${color}`, "important")
+	} else {		
+		let style = window.getComputedStyle(node)
+		if (style.color == "rgba(0, 0, 0, 0)") {
+			return
+		}
+		node.style.setProperty("text-shadow", `0 0 ${Math.min(Math.max((timeOnPage - STIMULI_START_TIME) / MAX_TIME, 0) * 10, 10) * (doBlur ? 1 : 0)}px ${style.color}`, "important")
+		node.classList.add("hciAffectedElement")
+	}
 }

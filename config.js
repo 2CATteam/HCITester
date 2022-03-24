@@ -33,6 +33,9 @@ chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimul
 	if (result.scrollStimuli) {
 		document.getElementById("scrollStimuli").checked = true
 	}
+	if (result.blurStimuli) {
+		document.getElementById("scrollStimuli").checked = true
+	}
 })
 
 let checkBox = document.getElementById('blackBoxStimuli')
@@ -72,6 +75,20 @@ checkBox.addEventListener('change', (event) => {
 		})
 	} else {
 		chrome.storage.local.set({scrollStimuli: false}, ()=>{
+			console.log("Change successful")
+		})
+	}
+})
+
+checkBox = document.getElementById('blurStimuli')
+
+checkBox.addEventListener('change', (event) => {
+	if(event.currentTarget.checked) {
+		chrome.storage.local.set({blurStimuli: true}, ()=>{
+			console.log("Change successful")
+		})
+	} else {
+		chrome.storage.local.set({blurStimuli: false}, ()=>{
 			console.log("Change successful")
 		})
 	}
