@@ -61,7 +61,7 @@ onLoadRepeat()
 function runStimuli() {
 	timeOnPage += (new Date().valueOf()) - lastChecked.valueOf()
 	lastChecked = new Date()
-	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli", "scrollStimuli", "blurStimuli"], (result) => {
+	chrome.storage.local.get(["blackBoxStimuli", "closeButtonStimuli", "scrollStimuli", "blurStimuli", "popupStimuli"], (result) => {
 		if(result.blackBoxStimuli){
 			blackBoxStimuli()
 		} else {
@@ -77,6 +77,11 @@ function runStimuli() {
 			setScrollMultiplier()
 		} else {
 			resetScrollMultiplier()
+		}
+		if(result.popupStimuli){
+			checkPopupStimuli()
+		} else {
+			resetPopupStimuli()
 		}
 		doBlur = result.blurStimuli
 	})
@@ -243,3 +248,87 @@ function addTransparency(node) {
 		node.classList.add("hciAffectedElement")
 	}
 }
+
+// Begin Popup stuff ---------------------------------------------------
+
+//There is a known issue with having the browser on the second monitor and the popups showing on the first
+//I don't currently know how to fix that
+
+const popupFactor = 5 * 1000 //The amount of time that gets decreased per loop
+const startCounter = 10 //this is what actually decrements to decrease the time
+
+let bShouldPopup = false
+let bLoopIsRunning = false
+let currentTimer = null
+
+//Temporary list of url's to test with
+const urlList = [
+	"https://www.mcleanhospital.org/essential/it-or-not-social-medias-affecting-your-mental-health",
+	"https://www.piedmont.org/living-better/how-the-internet-affects-your-mental-health",
+	"https://etactics.com/blog/social-media-and-mental-health-statistics",
+	"https://www.karger.com/Article/FullText/491997"
+]
+
+function checkPopupStimuli(){
+	if(timeOnPage > STIMULI_START_TIME){
+		if(bLoopIsRunning) return
+		bLoopIsRunning = true
+		bShouldPopup = true
+
+		popupLoop(startCounter, popupFactor)
+	} else {
+		resetPopupStimuli()
+	}
+}
+
+function resetPopupStimuli(){
+	bShouldPopup = false
+	bLoopIsRunning = false
+	if(currentTimer != null) clearTimeout(currentTimer)
+}
+
+function popupLoop(counter, factor){
+	const leftR = Math.floor(Math.random() * getWidth())
+	const topR = Math.floor(Math.random() * getHeight() - 400)
+	const randUrl = Math.floor(Math.random() * urlList.length)
+	chrome.runtime.sendMessage({url: urlList[randUrl], topRand: topR, leftRand: leftR}, function(response) {
+		console.log(response.success);
+	  });
+
+	//If we should still be doing the loop or not
+	if(bShouldPopup){
+		// 1 * factor is the shortest amount of time allowed
+		if(counter > 1){
+			counter--
+		}
+
+		delay = counter * factor
+
+		//Call this same function after the given delay
+		currentTimer = setTimeout(popupLoop, delay, counter, factor)
+	}
+}
+
+// https://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
+// Comes from jQuery's implementation
+function getWidth() {
+    return Math.max(
+      document.body.scrollWidth,
+      document.documentElement.scrollWidth,
+      document.body.offsetWidth,
+      document.documentElement.offsetWidth,
+      document.documentElement.clientWidth
+    );
+  }
+  
+  function getHeight() {
+    return Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.documentElement.clientHeight
+    );
+  }
+
+  //End Popup Stuff ------------------------------------------------

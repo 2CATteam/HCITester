@@ -23,7 +23,7 @@ function clearTime() {
 	})
 }
 
-chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli", "scrollStimuli"], (result) => {
+chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimuli", "scrollStimuli", "blurStimuli", "popupStimuli"], (result) => {
 	if(result.blackBoxStimuli){
 		document.getElementById("blackBoxStimuli").checked = true
 	}
@@ -34,7 +34,10 @@ chrome.storage.local.get(["test", "test2", "blackBoxStimuli", "closeButtonStimul
 		document.getElementById("scrollStimuli").checked = true
 	}
 	if (result.blurStimuli) {
-		document.getElementById("scrollStimuli").checked = true
+		document.getElementById("blurStimuli").checked = true
+	}
+	if(result.popupStimuli){
+		document.getElementById("popupStimuli").checked = true
 	}
 })
 
@@ -89,6 +92,20 @@ checkBox.addEventListener('change', (event) => {
 		})
 	} else {
 		chrome.storage.local.set({blurStimuli: false}, ()=>{
+			console.log("Change successful")
+		})
+	}
+})
+
+checkBox = document.getElementById('popupStimuli')
+
+checkBox.addEventListener('change', (event) => {
+	if(event.currentTarget.checked) {
+		chrome.storage.local.set({popupStimuli: true}, ()=>{
+			console.log("Change successful")
+		})
+	} else {
+		chrome.storage.local.set({popupStimuli: false}, ()=>{
 			console.log("Change successful")
 		})
 	}
